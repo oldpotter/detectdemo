@@ -6,6 +6,6 @@ import java.util.concurrent.Executors;
  */
 public class Global {
     public static ExecutorService sendPacketPool = Executors.newFixedThreadPool(Config.threadCount);
-    public static ExecutorService writeFilePool = Executors.newFixedThreadPool(Config.threadCount);
+    public static ExecutorService writeFilePool = Executors.newSingleThreadExecutor();
 
 }

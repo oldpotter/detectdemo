@@ -11,15 +11,6 @@ public class DetectPacket {
     private int connectType;
     private int datalength;
     private String fileName;
-    private byte[] bytes;
-
-    public byte[] getBytes() {
-        return bytes;
-    }
-
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
-    }
 
     public int getTime() {
         return time;

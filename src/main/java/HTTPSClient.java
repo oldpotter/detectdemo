@@ -1,5 +1,9 @@
+import com.google.common.io.LittleEndianDataOutputStream;
+
 import javax.net.ssl.*;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -8,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 
 /**
  * Created by Administrator on 2017/5/18 0018.
@@ -52,14 +57,14 @@ public class HTTPSClient extends Client {
             HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
             String ipAddress = "https://" + detectPacket.getIpString();
             URL destinationURL = new URL(ipAddress);
-            HttpsURLConnection conn = (HttpsURLConnection) destinationURL.openConnection();
-            conn.connect();
+            HttpsURLConnection connection = (HttpsURLConnection) destinationURL.openConnection();
+            connection.connect();
 
-            Certificate[] certs = conn.getServerCertificates();
-            byte[] head = detectPacket.getBytes();
-            detectPacket.setTime((int) System.currentTimeMillis());
-            detectPacket.setDatalength(certs.length == 0 ? 0 : certs[0].getEncoded().length);
-
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(connection.getInputStream());
+            byte[] responseData = new byte[bufferedInputStream.available()];
+            X509Certificate cert = (X509Certificate) (connection.getServerCertificates())[0];
+            //写操作
+            Global.writeFilePool.submit(new ScratchWriteTask(responseData, detectPacket, parse(cert)));
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -69,9 +74,22 @@ public class HTTPSClient extends Client {
             e.printStackTrace();
         } catch (KeyManagementException e) {
             e.printStackTrace();
-        } catch (CertificateEncodingException e) {
-            e.printStackTrace();
         }
 
+    }
+
+    public static byte[] parse(X509Certificate c) {
+        HashMap<String, Object> hash = new HashMap<String, Object>();
+        hash.put("protocol", "SSL");
+        hash.put("devicename", "");
+        hash.put("version", c.getVersion());
+        hash.put("serial number", c.getSerialNumber().toString());
+        hash.put("signature algorithm", c.getSigAlgName());
+        hash.put("issuer", c.getIssuerDN());
+        hash.put("validity", c.getNotBefore() + "," +c.getNotAfter());
+        hash.put("public key algorithm", c.getPublicKey());
+        hash.put("algorithm id", c.getSigAlgOID());
+        hash.put("subject", c.getSubjectDN());
+        return hash.toString().getBytes();
     }
 }
