@@ -33,7 +33,9 @@ public class ScratchWriteTask implements Runnable {
     @Override
     public void run() {
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(Config.outputFilePath + File.separator + detectPacket.getFileName(), true);
+            StringBuffer stringBuffer = new StringBuffer(detectPacket.getFileName()).insert(detectPacket.getFileName().length() - 4, "_NO");
+            String newFileName = stringBuffer.toString();
+            FileOutputStream fileOutputStream = new FileOutputStream(newFileName, true);
             LittleEndianDataOutputStream littleEndianDataOutputStream = new LittleEndianDataOutputStream(fileOutputStream);
 
             //消息頭
@@ -53,6 +55,7 @@ public class ScratchWriteTask implements Runnable {
             }
             littleEndianDataOutputStream.writeInt(dataLength);
 
+            //消息体
             littleEndianDataOutputStream.write(certificateInfo);
             littleEndianDataOutputStream.write(responseData);
             littleEndianDataOutputStream.flush();
