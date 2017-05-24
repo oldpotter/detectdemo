@@ -32,6 +32,10 @@ public class ScratchWriteTask implements Runnable {
 
     @Override
     public void run() {
+        //不保存空文件
+        if(certificateInfo== null || responseData == null){
+            return;
+        }
         try {
             StringBuffer stringBuffer = new StringBuffer(detectPacket.getFileName()).insert(detectPacket.getFileName().length() - 4, "_NO");
             String newFileName = stringBuffer.toString();

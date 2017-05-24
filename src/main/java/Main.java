@@ -74,13 +74,17 @@ class FileProcess {
         return ret;
     }
 
+    /**
+     *
+     * @param files
+     */
     public static void process(File[] files) {
         for (File file : files) {
             try {
                 byte[] bytes = getBytesFromFile(file);
                 //删除原始文件
                 System.out.println("file:" + file.getName() + "删除" + (file.delete() ? "成功" : "不成功"));
-                System.out.print("file:" + file.getName() + " bytes:" + Tools.byte2HexStr(bytes));
+                System.out.println("file:" + file.getName() + " bytes:" + Tools.byte2HexStr(bytes));
                 LittleEndianDataInputStream inputStream = new LittleEndianDataInputStream(new ByteArrayInputStream(bytes));
                 while (inputStream.available() >= 24) {
                     //放到detectpacket
@@ -88,6 +92,7 @@ class FileProcess {
                     detectPacket.setTime(inputStream.readInt());
                     detectPacket.setSendCode(inputStream.readInt());
                     detectPacket.setReverse(inputStream.readInt());
+                    detectPacket.setJsonSize(inputStream.readInt());
                     detectPacket.setIp(inputStream.readInt());
                     detectPacket.setPort(inputStream.readShort());
                     detectPacket.setTtl(inputStream.readByte());

@@ -5,12 +5,21 @@ public class DetectPacket {
     private int time;
     private int sendCode;
     private int reverse;
+    private int jsonSize;
     private int ip;
     private int port;
     private int ttl;
     private int connectType;
     private int datalength;
     private String fileName;
+
+    public int getJsonSize() {
+        return jsonSize;
+    }
+
+    public void setJsonSize(int jsonSize) {
+        this.jsonSize = jsonSize;
+    }
 
     public int getTime() {
         return time;
