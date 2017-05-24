@@ -13,12 +13,9 @@ import java.util.regex.Pattern;
 /**
  * Created by Administrator on 2017/5/18 0018.
  */
-
-
 public class Main {
 
     public static void main(String[] args) {
-
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new FileTask(), 0, Config.lDetectInterval);
     }
@@ -75,7 +72,7 @@ class FileProcess {
     }
 
     /**
-     *
+     *  处理文件
      * @param files
      */
     public static void process(File[] files) {
@@ -83,7 +80,7 @@ class FileProcess {
             try {
                 byte[] bytes = getBytesFromFile(file);
                 //删除原始文件
-                System.out.println("file:" + file.getName() + "删除" + (file.delete() ? "成功" : "不成功"));
+//                System.out.println("file:" + file.getName() + "删除" + (file.delete() ? "成功" : "不成功"));
                 System.out.println("file:" + file.getName() + " bytes:" + Tools.byte2HexStr(bytes));
                 LittleEndianDataInputStream inputStream = new LittleEndianDataInputStream(new ByteArrayInputStream(bytes));
                 while (inputStream.available() >= 24) {
@@ -92,7 +89,7 @@ class FileProcess {
                     detectPacket.setTime(inputStream.readInt());
                     detectPacket.setSendCode(inputStream.readInt());
                     detectPacket.setReverse(inputStream.readInt());
-                    detectPacket.setJsonSize(inputStream.readInt());
+//                    detectPacket.setJsonSize(inputStream.readInt());
                     detectPacket.setIp(inputStream.readInt());
                     detectPacket.setPort(inputStream.readShort());
                     detectPacket.setTtl(inputStream.readByte());
@@ -101,7 +98,7 @@ class FileProcess {
                     detectPacket.setFileName(file.getName());
                     System.out.println(detectPacket.toString());
                     //发包
-                    Global.sendPacketPool.submit(new ScratchTask(detectPacket));
+//                    Global.sendPacketPool.submit(new ScratchTask(detectPacket));
                 }
                 inputStream.close();
             } catch (IOException e) {

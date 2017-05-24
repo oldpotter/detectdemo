@@ -33,13 +33,14 @@ public class ScratchWriteTask implements Runnable {
     @Override
     public void run() {
         //不保存空文件
-        if(certificateInfo== null || responseData == null){
+        if (certificateInfo == null || responseData == null) {
+            System.out.println("空文件不保存");
             return;
         }
         try {
             StringBuffer stringBuffer = new StringBuffer(detectPacket.getFileName()).insert(detectPacket.getFileName().length() - 4, "_NO");
             String newFileName = stringBuffer.toString();
-            FileOutputStream fileOutputStream = new FileOutputStream(newFileName, true);
+            FileOutputStream fileOutputStream = new FileOutputStream(Config.outputFilePath + File.separator + newFileName, true);
             LittleEndianDataOutputStream littleEndianDataOutputStream = new LittleEndianDataOutputStream(fileOutputStream);
 
             //消息頭
