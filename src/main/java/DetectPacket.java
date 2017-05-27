@@ -49,7 +49,7 @@ public class DetectPacket {
         return ip;
     }
 
-    public String getIpString(){
+    public String getIpString() {
         return Tools.longToIp(this.ip);
     }
 
@@ -99,7 +99,7 @@ public class DetectPacket {
 
     @Override
     public String toString() {
-        return "file:" + fileName + " ip:" + getIpString() + " connectType:" + connectType + " reserve:" + reverse + " time:" + time;
+        return "file:" + fileName + ", ip:" + getIpString() + " ,connectType:" + connectType + ",port:" + port + ", reserve:" + reverse + ", time:" + time + ",sendCode:" + sendCode + ",jsonSize:" + jsonSize;
     }
 
 }

@@ -21,6 +21,7 @@ public class HTTPSClient extends Client {
     private DetectPacket detectPacket;
 
     public HTTPSClient(DetectPacket detectPacket) {
+        super();
         this.detectPacket = detectPacket;
     }
 
@@ -62,9 +63,11 @@ public class HTTPSClient extends Client {
 
             BufferedInputStream bufferedInputStream = new BufferedInputStream(connection.getInputStream());
             byte[] responseData = new byte[bufferedInputStream.available()];
-            X509Certificate cert = (X509Certificate) (connection.getServerCertificates())[0];
+            X509Certificate[] certificates = (X509Certificate[]) connection.getServerCertificates();
+            System.out.println("读取到" + certificates.length + "个证书");
+
             //写操作
-            Global.writeFilePool.submit(new ScratchWriteTask(responseData, detectPacket, parse(cert)));
+//            Global.writeFilePool.submit(new ScratchWriteTask(responseData, detectPacket, parse(cert)));
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -80,7 +83,7 @@ public class HTTPSClient extends Client {
 
     public static byte[] parse(X509Certificate c) {
         HashMap<String, Object> hash = new HashMap<String, Object>();
-        hash.put("protocol", "SSL");
+        hash.put("protocol", "HTTPS");
         hash.put("devicename", "");
         hash.put("version", c.getVersion());
         hash.put("serial number", c.getSerialNumber().toString());

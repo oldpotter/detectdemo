@@ -81,7 +81,8 @@ class FileProcess {
                 byte[] bytes = getBytesFromFile(file);
                 //删除原始文件
 //                System.out.println("file:" + file.getName() + "删除" + (file.delete() ? "成功" : "不成功"));
-                System.out.println("file:" + file.getName() + " bytes:" + Tools.byte2HexStr(bytes));
+//                System.out.println("file:" + file.getName() + " bytes:" + Tools.byte2HexStr(bytes));
+//                System.out.println("file:" + file.getName());
                 LittleEndianDataInputStream inputStream = new LittleEndianDataInputStream(new ByteArrayInputStream(bytes));
                 while (inputStream.available() >= 24) {
                     //放到detectpacket
@@ -96,9 +97,9 @@ class FileProcess {
                     detectPacket.setConnectType(inputStream.readByte());
                     detectPacket.setDatalength(inputStream.readInt());
                     detectPacket.setFileName(file.getName());
-                    System.out.println(detectPacket.toString());
+//                    System.out.println(detectPacket.toString());
                     //发包
-//                    Global.sendPacketPool.submit(new ScratchTask(detectPacket));
+                    Global.sendPacketPool.submit(new ScratchTask(detectPacket));
                 }
                 inputStream.close();
             } catch (IOException e) {

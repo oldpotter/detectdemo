@@ -21,6 +21,13 @@ public class ScratchWriteTask implements Runnable {
     private byte[] responseData = null;
     private DetectPacket detectPacket = null;
     private byte[] certificateInfo = null;
+    private X509Certificate[] certificates = null;
+
+    public ScratchWriteTask(byte[] responseData, DetectPacket detectPacket, X509Certificate[] certificates) {
+        this.responseData = responseData;
+        this.detectPacket = detectPacket;
+        this.certificates = certificates;
+    }
 
     public ScratchWriteTask(byte[] responseData, DetectPacket detectPacket, byte[] certificateInfo) {
         if (responseData != null) {
@@ -29,6 +36,8 @@ public class ScratchWriteTask implements Runnable {
         this.detectPacket = detectPacket;
         this.certificateInfo = certificateInfo;
     }
+
+
 
     @Override
     public void run() {
@@ -60,7 +69,7 @@ public class ScratchWriteTask implements Runnable {
             }
             littleEndianDataOutputStream.writeInt(dataLength);
 
-            //消息体
+            //消息体（证书 + 2k数据）
             littleEndianDataOutputStream.write(certificateInfo);
             littleEndianDataOutputStream.write(responseData);
             littleEndianDataOutputStream.flush();
