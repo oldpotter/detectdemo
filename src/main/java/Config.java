@@ -16,7 +16,6 @@ public class Config {
     //发包线程数
     public static int threadCount = 1000;
 
-
     //超时
     public static int timeout = 30000;
 }

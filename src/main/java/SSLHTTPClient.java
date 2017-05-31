@@ -18,11 +18,10 @@ import static java.lang.System.out;
  * Created by Administrator on 2017/5/24 0024.
  */
 public class SSLHTTPClient extends Client {
-    private DetectPacket detectPacket;
+
 
     public SSLHTTPClient(DetectPacket detectPacket) {
         super(detectPacket);
-        this.detectPacket = detectPacket;
     }
 
     @Override
@@ -42,8 +41,6 @@ public class SSLHTTPClient extends Client {
             }
             System.out.println("共有" + certificates.length + "个证书:" + new String(bytes_certificates));
         }
-
-
     }
 
     public byte[] parseCertification(X509Certificate c) throws Exception {

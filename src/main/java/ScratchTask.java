@@ -1,3 +1,5 @@
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+
 import javax.annotation.processing.SupportedSourceVersion;
 
 /**
@@ -6,8 +8,12 @@ import javax.annotation.processing.SupportedSourceVersion;
 class ScratchTask implements Runnable {
 
     private static final int TCP = 0x06;
-    private static final int TCP_HTTP = 0x020050;
+    private static final int UDP = 0x11;
     private static final int HTTPS = 0x0201BB;
+    private static final int SMTP = 0x0201D1;
+    private static final int LDAP = 0x02027C;
+    private static final int IMAP = 0x0203E1;
+    private static final int POP3 = 0x0203E3;
 
     private DetectPacket detectPacket = null;
 
@@ -18,21 +24,35 @@ class ScratchTask implements Runnable {
     @Override
     public void run() {
         Client client = null;
-        if (detectPacket.getConnectType() == TCP) {
-            if (detectPacket.getSendCode() == HTTPS) {
-                client = new SSLHTTPClient(detectPacket);
-            } else {
-                System.out.println("Others");
-            }
-        } else {
-            System.out.println("UDP");
+        int connectType = detectPacket.getConnectType();
+        int sendCode = detectPacket.getSendCode();
+        switch (sendCode) {
+            case HTTPS:
+                System.out.println("HTTPS" + connectType);
+                break;
+            case SMTP:
+                System.out.println("SMTP" + connectType);
+                break;
+            case LDAP:
+                System.out.println("LDAP" + connectType);
+                break;
+            case IMAP:
+                System.out.println("IMAP" + connectType);
+                break;
+            case POP3:
+                System.out.println("POP3" + connectType);
+                break;
+            default:
+                System.out.println("Unknow send code" + sendCode);
         }
-        try {
-            if (client != null) {
-                client.connect();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+//        //连接
+//        try {
+//            if (client != null) {
+//                client.connect();
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 }

@@ -9,7 +9,7 @@ import java.security.cert.X509Certificate;
  */
 public class Client {
 
-    private DetectPacket detectPacket;
+    public DetectPacket detectPacket;
 
     public Client(DetectPacket detectPacket) {
         this.detectPacket = detectPacket;

@@ -72,7 +72,8 @@ class FileProcess {
     }
 
     /**
-     *  处理文件
+     * 处理文件
+     *
      * @param files
      */
     public static void process(File[] files) {
@@ -80,9 +81,9 @@ class FileProcess {
             try {
                 byte[] bytes = getBytesFromFile(file);
                 //删除原始文件
-//                System.out.println("file:" + file.getName() + "删除" + (file.delete() ? "成功" : "不成功"));
-//                System.out.println("file:" + file.getName() + " bytes:" + Tools.byte2HexStr(bytes));
-//                System.out.println("file:" + file.getName());
+                if (Maco.DELETE_DETECTE_FILE == true) {
+                    System.out.println("file:" + file.getName() + "删除" + (file.delete() ? "成功" : "不成功"));
+                }
                 LittleEndianDataInputStream inputStream = new LittleEndianDataInputStream(new ByteArrayInputStream(bytes));
                 while (inputStream.available() >= 24) {
                     //放到detectpacket
