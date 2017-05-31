@@ -24,35 +24,32 @@ class ScratchTask implements Runnable {
     @Override
     public void run() {
         Client client = null;
-        int connectType = detectPacket.getConnectType();
         int sendCode = detectPacket.getSendCode();
-        switch (sendCode) {
-            case HTTPS:
-                System.out.println("HTTPS" + connectType);
-                break;
-            case SMTP:
-                System.out.println("SMTP" + connectType);
-                break;
-            case LDAP:
-                System.out.println("LDAP" + connectType);
-                break;
-            case IMAP:
-                System.out.println("IMAP" + connectType);
-                break;
-            case POP3:
-                System.out.println("POP3" + connectType);
-                break;
-            default:
-                System.out.println("Unknow send code" + sendCode);
+        if (detectPacket.getConnectType() == TCP){
+            switch (sendCode) {
+                case HTTPS:
+                    client = new Client(detectPacket, Client.PROTOCOL_TYPE.HTTPS);
+                    break;
+                case SMTP:
+                    break;
+                case LDAP:
+                    break;
+                case IMAP:
+                    break;
+                case POP3:
+                    break;
+                default:
+                    System.out.println("Unknow send code" + sendCode);
+            }
         }
 
-//        //连接
-//        try {
-//            if (client != null) {
-//                client.connect();
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        //连接
+        try {
+            if (client != null) {
+                client.connect();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

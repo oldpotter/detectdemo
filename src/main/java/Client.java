@@ -2,24 +2,86 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 
 /**
  * Created by Administrator on 2017/5/18 0018.
  */
 public class Client {
 
+    public enum PROTOCOL_TYPE {
+        HTTPS,
+        SMTP,
+        LDAP,
+        IMAP,
+        POP3
+    }
+
+    byte[] HTTPdata = {0x47, 0x45, 0x54, 0x20, 0x2f, 0x20, 0x48, 0x54, 0x54, 0x50, 0x2f, 0x31, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a}; //GET / HTTP/1.0
+    byte[] SMTPdata = {0x45, 0x48, 0x4c, 0x4f, 0x0d, 0x0a};
+    byte[] POP3data = {0x43, 0x41, 0x50, 0x41, 0x0d, 0x0a};
+    byte[] IMAPdata = {0x41, 0x30, 0x30, 0x31, 0x20, 0x43, 0x41, 0x50, 0x41, 0x42, 0x49, 0x4c, 0x49, 0x54, 0x59, 0x0d, 0x0a};
+//    byte[] LDAPdata={0x30,0x0c,0x02,0x01,0x01,0x60,0x07,0x02,0x01,0x02,0x04,0x00,0x80,0x00};
+
     public DetectPacket detectPacket;
 
-    public Client(DetectPacket detectPacket) {
+    /**
+     * 证书信息
+     */
+    private byte[] bytesCertificates = new byte[10000];
+
+    private PROTOCOL_TYPE protocol_type;
+
+    public Client(DetectPacket detectPacket, PROTOCOL_TYPE protocol_type) {
         this.detectPacket = detectPacket;
+        this.protocol_type = protocol_type;
     }
 
-    public Client() {
-
-    }
 
     public void connect() throws Exception {
+        SSLSocket sslSocket = getSSLSocket();
+        X509Certificate[] certificates = (X509Certificate[]) sslSocket.getSession().getPeerCertificates();
+        //解析证书，如果有重复就保存version等字段
+        int length = 0;
+        for (int i = 0; i < certificates.length; i++) {
+            byte[] bytes;
+            if (i == 0) {
+                bytes = parseCertification(certificates[i]);
+                System.arraycopy(bytes, 0, bytesCertificates, 0, bytes.length);
+            } else {
+                bytes = parsePartCertification(certificates[i]);
+                System.arraycopy(bytes, 0, bytesCertificates, parseCertification(certificates[i - 1]).length, bytes.length);
+            }
+            length += bytes.length;
+//            System.out.println("共有" + certificates.length + "个证书:" + new String(bytesCertificates));
+        }
+        detectPacket.setJsonSize(length);//set json size
+        byte[] request_data = new byte[1024];
+        switch (this.protocol_type) {
+            case HTTPS:
+                request_data = HTTPdata;
+                break;
+            case IMAP:
+                request_data = IMAPdata;
+                break;
+            case LDAP:
+//                request_data = LDA;
+                break;
+            case POP3:
+                request_data = POP3data;
+                break;
+            case SMTP:
+                request_data = SMTPdata;
+                break;
+        }
+        sendRequestBytes(sslSocket.getOutputStream(), request_data);//send request data
+        //write task
+        Global.writeFilePool.submit(new ScratchWriteTask(readResponse(sslSocket.getInputStream()), detectPacket, bytesCertificates));
     }
 
     public SSLSocket getSSLSocket() throws Exception {
@@ -41,5 +103,77 @@ public class Client {
         return (SSLSocket) sslContext.getSocketFactory().createSocket(detectPacket.getIpString(), detectPacket.getPort());
     }
 
+    public byte[] parseCertification(X509Certificate c) throws Exception {
+        HashMap<String, Object> hash = new HashMap<String, Object>();
+        String strProtocol = null;
+        switch (this.protocol_type) {
+            case HTTPS:
+                strProtocol = "HTTPS";
+                break;
+            case IMAP:
+                strProtocol = "IMAP";
+                break;
+            case LDAP:
+                strProtocol = "LDAP";
+                break;
+            case POP3:
+                strProtocol = "POP3";
+                break;
+            case SMTP:
+                strProtocol = "SMTP";
+                break;
+        }
+        hash.put("protocol", strProtocol);
+        hash.put("devicename", "");
+        hash.put("version", c.getVersion());
+        hash.put("serial number", c.getSerialNumber().toString());
+        hash.put("signature algorithm", c.getSigAlgName());
+        hash.put("issuer", c.getIssuerDN());
+        hash.put("validity", c.getNotBefore() + "," + c.getNotAfter());
+        hash.put("public key algorithm", c.getPublicKey());
+        hash.put("algorithm id", c.getSigAlgOID());
+        hash.put("subject", c.getSubjectDN());
+        return hash.toString().getBytes();
+    }
 
+    public byte[] parsePartCertification(X509Certificate c) throws Exception {
+        HashMap<String, Object> hash = new HashMap<String, Object>();
+        hash.put("version", c.getVersion());
+        hash.put("serial number", c.getSerialNumber().toString());
+        hash.put("signature algorithm", c.getSigAlgName());
+        hash.put("issuer", c.getIssuerDN());
+        hash.put("validity", c.getNotBefore() + "," + c.getNotAfter());
+        hash.put("public key algorithm", c.getPublicKey());
+        hash.put("algorithm id", c.getSigAlgOID());
+        hash.put("subject", c.getSubjectDN());
+        return hash.toString().getBytes();
+    }
+
+    private void sendRequestBytes(OutputStream out, byte[] bytes) throws Exception {
+        out.write(bytes);
+        out.flush();
+    }
+
+    private byte[] readResponse(InputStream in) throws IOException {
+        return InputStreamTOByte(in);
+    }
+
+    /**
+     * 将InputStream转换成byte数组
+     *
+     * @param in InputStream
+     * @return byte[]
+     * @throws IOException
+     */
+    public static byte[] InputStreamTOByte(InputStream in) throws IOException {
+
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        byte[] data = new byte[1024];
+        int count = -1;
+        while ((count = in.read(data, 0, 1024)) != -1)
+            outStream.write(data, 0, count);
+
+        data = null;
+        return outStream.toByteArray();
+    }
 }
