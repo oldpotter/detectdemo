@@ -16,6 +16,14 @@ import java.util.regex.Pattern;
 public class Main {
 
     public static void main(String[] args) {
+        if (Maco.DELETE_RESPONSE_FILE){
+            File sourceFile = new File(Config.outputFilePath);
+            File[] sourceFiles = sourceFile.listFiles();
+            for (File f :
+                    sourceFiles) {
+                f.delete();
+            }
+        }
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new FileTask(), 0, Config.lDetectInterval);
     }

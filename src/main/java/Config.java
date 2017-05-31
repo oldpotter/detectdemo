@@ -5,7 +5,7 @@ import java.io.File;
  */
 public class Config {
     //读取目录间隔时间
-    public static long lDetectInterval = 30 * 1000;
+    public static long lDetectInterval = 3000 * 1000;
 
     //源文件目录
     public static String sourceFilePath = "E:\\sourceDir";

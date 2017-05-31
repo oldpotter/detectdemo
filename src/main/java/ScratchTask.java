@@ -23,14 +23,15 @@ class ScratchTask implements Runnable {
 
     @Override
     public void run() {
-        Client client = null;
+        Client.PROTOCOL_TYPE protocol_type = null;
         int sendCode = detectPacket.getSendCode();
-        if (detectPacket.getConnectType() == TCP){
+        if (detectPacket.getConnectType() == TCP) {
             switch (sendCode) {
                 case HTTPS:
-                    client = new Client(detectPacket, Client.PROTOCOL_TYPE.HTTPS);
+                    protocol_type = Client.PROTOCOL_TYPE.HTTPS;
                     break;
                 case SMTP:
+                    protocol_type = Client.PROTOCOL_TYPE.SMTP;
                     break;
                 case LDAP:
                     break;
@@ -45,7 +46,8 @@ class ScratchTask implements Runnable {
 
         //连接
         try {
-            if (client != null) {
+            if (protocol_type == Client.PROTOCOL_TYPE.SMTP) {
+                Client client = new Client(detectPacket, protocol_type);
                 client.connect();
             }
         } catch (Exception e) {
