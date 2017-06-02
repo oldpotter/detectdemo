@@ -51,36 +51,6 @@ class FileTask extends TimerTask {
 class FileProcess {
 
     /**
-     * 文件转化为字节数组
-     *
-     * @param file
-     * @return
-     */
-    public static byte[] getBytesFromFile(File file) {
-        byte[] ret = null;
-        try {
-            if (file == null) {
-                // log.error("helper:the file is null!");
-                return null;
-            }
-            FileInputStream in = new FileInputStream(file);
-            ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
-            byte[] b = new byte[4096];
-            int n;
-            while ((n = in.read(b)) != -1) {
-                out.write(b, 0, n);
-            }
-            in.close();
-            out.close();
-            ret = out.toByteArray();
-        } catch (IOException e) {
-            // log.error("helper:get bytes from file process error!");
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
-    /**
      * 处理文件
      *
      * @param files
@@ -103,18 +73,10 @@ class FileProcess {
                     continue;
                 }
 
-
-                byte[] bytes = getBytesFromFile(file);
-
-                //删除原始文件
-                if (Maco.DELETE_DETECTE_FILE == true) {
-                    file.delete();
-                }
-
-                //回收
-                fileLock.release();
-                fileChannel.close();
-
+                randomAccessFile.seek(0);
+                //一次性全部读取
+                byte[] bytes = new byte[(int) randomAccessFile.length()];
+                randomAccessFile.read(bytes);
 
                 LittleEndianDataInputStream inputStream = new LittleEndianDataInputStream(new ByteArrayInputStream(bytes));
                 while (inputStream.available() >= 24) {
@@ -134,7 +96,14 @@ class FileProcess {
                     //发包
                     Global.sendPacketPool.submit(new ScratchTask(detectPacket));
                 }
+                //删除原始文件
+                if (Maco.DELETE_DETECTE_FILE == true) {
+                    file.delete();
+                }
                 inputStream.close();
+                //回收
+                fileLock.release();
+                fileChannel.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
