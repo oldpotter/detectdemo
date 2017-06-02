@@ -5,10 +5,11 @@ public class Maco {
     /**
      * 删除源文件
      */
-    public static boolean DELETE_DETECTE_FILE = false;
+    public static boolean DELETE_DETECTE_FILE = true;
 
     /**
      * 删除response目录下文件
      */
-    public static boolean DELETE_RESPONSE_FILE = true;
+    public static boolean DELETE_RESPONSE_FILE = false;
+
 }

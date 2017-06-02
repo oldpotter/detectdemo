@@ -4,18 +4,25 @@ import java.io.File;
  * Created by Administrator on 2017/5/18 0018.
  */
 public class Config {
-    //读取目录间隔时间
-    public static long lDetectInterval = 3000 * 1000;
+    //读取目录间隔时间:30s
+    public static long lDetectInterval = 1000 * 30;
 
     //源文件目录
-    public static String sourceFilePath = "E:\\sourceDir";
+    /*
+    *      /home/CloudUser/DetectIP/
+    *     "E:\sourceDir"
+    *     /usr/test
+    * */
+    public static String sourceFilePath = "/home/CloudUser/DetectIP/";
 
     //输出文件目录
-    public static String outputFilePath = sourceFilePath + File.separator + "response";
+    /*
+    * sourceFilePath + File.separator + "response"
+    * "/home/CloudUser/PacketInfo"
+    *
+    * */
+    public static String outputFilePath = "/home/CloudUser/PacketInfo";
 
     //发包线程数
     public static int threadCount = 1000;
-
-    //超时
-    public static int timeout = 30000;
 }

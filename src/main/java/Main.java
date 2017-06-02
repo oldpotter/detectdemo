@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
  * Created by Administrator on 2017/5/18 0018.
  */
 public class Main {
-
     public static void main(String[] args) {
         if (Maco.DELETE_RESPONSE_FILE) {
             File sourceFile = new File(Config.outputFilePath);
@@ -96,14 +95,13 @@ class FileProcess {
                     //发包
                     Global.sendPacketPool.submit(new ScratchTask(detectPacket));
                 }
-                //删除原始文件
-                if (Maco.DELETE_DETECTE_FILE == true) {
-                    file.delete();
-                }
+
                 inputStream.close();
                 //回收
                 fileLock.release();
                 fileChannel.close();
+                randomAccessFile.close();
+                System.out.println("删除文件：" + file.getName() + (file.delete() ? "成功!!!" : "失败T.T"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
