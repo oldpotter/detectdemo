@@ -5,6 +5,7 @@ import sun.misc.IOUtils;
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
@@ -16,7 +17,7 @@ import java.util.regex.Pattern;
 public class Main {
 
     public static void main(String[] args) {
-        if (Maco.DELETE_RESPONSE_FILE){
+        if (Maco.DELETE_RESPONSE_FILE) {
             File sourceFile = new File(Config.outputFilePath);
             File[] sourceFiles = sourceFile.listFiles();
             for (File f :
@@ -87,11 +88,34 @@ class FileProcess {
     public static void process(File[] files) {
         for (File file : files) {
             try {
+                RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+                FileChannel fileChannel = randomAccessFile.getChannel();
+                FileLock fileLock = null;
+
+                //文件加锁
+                try {
+                    fileLock = fileChannel.tryLock();
+                    //上锁失败
+                    if (fileLock == null) {
+                        continue;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+
+
                 byte[] bytes = getBytesFromFile(file);
+
                 //删除原始文件
                 if (Maco.DELETE_DETECTE_FILE == true) {
-                    System.out.println("file:" + file.getName() + "删除" + (file.delete() ? "成功" : "不成功"));
+                    file.delete();
                 }
+
+                //回收
+                fileLock.release();
+                fileChannel.close();
+
+
                 LittleEndianDataInputStream inputStream = new LittleEndianDataInputStream(new ByteArrayInputStream(bytes));
                 while (inputStream.available() >= 24) {
                     //放到detectpacket
