@@ -44,14 +44,14 @@ public class ScratchWriteTask implements Runnable {
             LittleEndianDataOutputStream littleEndianDataOutputStream = new LittleEndianDataOutputStream(fileOutputStream);
 
             //消息頭
-            littleEndianDataOutputStream.writeInt((int) (System.currentTimeMillis() / 1000));
-            littleEndianDataOutputStream.writeInt(detectPacket.getSendCode());
-            littleEndianDataOutputStream.writeInt(detectPacket.getReverse());
-            littleEndianDataOutputStream.writeInt((short)detectPacket.getJsonSize());
-            littleEndianDataOutputStream.writeInt(detectPacket.getIp());
-            littleEndianDataOutputStream.writeShort(detectPacket.getPort());
-            littleEndianDataOutputStream.writeByte(detectPacket.getTtl());
-            littleEndianDataOutputStream.writeByte(detectPacket.getConnectType());
+            littleEndianDataOutputStream.writeInt((int) (System.currentTimeMillis() / 1000));//4,time
+            littleEndianDataOutputStream.writeInt(detectPacket.getSendCode());//4,sendcode
+            littleEndianDataOutputStream.writeShort(detectPacket.getReverse());//2,reverse
+            littleEndianDataOutputStream.writeShort(detectPacket.getJsonSize());//2,json size
+            littleEndianDataOutputStream.writeInt(detectPacket.getIp());//4
+            littleEndianDataOutputStream.writeShort(detectPacket.getPort());//2
+            littleEndianDataOutputStream.writeByte(detectPacket.getTtl());//1
+            littleEndianDataOutputStream.writeByte(detectPacket.getConnectType());//1
             int dataLength = 0;
             if (certificateInfo != null) {
                 dataLength += certificateInfo.length;
@@ -59,9 +59,9 @@ public class ScratchWriteTask implements Runnable {
             if (responseData != null) {
                 dataLength += responseData.length;
             }
-            littleEndianDataOutputStream.writeInt(dataLength);
+            littleEndianDataOutputStream.writeInt(dataLength);//4,data length
 
-            //消息体（证书 + 2k数据）
+//            //消息体（证书 + 2k数据）
             littleEndianDataOutputStream.write(certificateInfo);
             littleEndianDataOutputStream.write(responseData);
             littleEndianDataOutputStream.flush();
