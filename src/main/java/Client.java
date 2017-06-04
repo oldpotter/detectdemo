@@ -45,21 +45,8 @@ public class Client {
     public void connect() throws Exception {
         SSLSocket sslSocket = getSSLSocket();
         X509Certificate[] certificates = (X509Certificate[]) sslSocket.getSession().getPeerCertificates();
-        //解析证书，如果有重复就保存version等字段
-        int length = 0;
-        for (int i = 0; i < certificates.length; i++) {
-            byte[] bytes;
-            if (i == 0) {
-                bytes = parseCertification(certificates[i]);
-                System.arraycopy(bytes, 0, bytesCertificates, 0, bytes.length);
-            } else {
-                bytes = parsePartCertification(certificates[i]);
-                System.arraycopy(bytes, 0, bytesCertificates, parseCertification(certificates[i - 1]).length, bytes.length);
-            }
-            length += bytes.length;
-//            System.out.println("共有" + certificates.length + "个证书:" + new String(bytesCertificates));
-        }
-        detectPacket.setJsonSize(length);//set json size
+        bytesCertificates = parssCertifications(certificates);
+        detectPacket.setJsonSize(certificates.length);//set json size
         byte[] request_data = new byte[1024];
         switch (this.protocol_type) {
             case HTTPS:
@@ -102,6 +89,13 @@ public class Client {
         return (SSLSocket) sslContext.getSocketFactory().createSocket(detectPacket.getIpString(), detectPacket.getPort());
     }
 
+    /**
+     * 解析证书
+     *
+     * @param 证书
+     * @return
+     * @throws Exception
+     */
     public byte[] parseCertification(X509Certificate c) throws Exception {
         HashMap<String, Object> hash = new HashMap<String, Object>();
         String strProtocol = null;
@@ -135,6 +129,13 @@ public class Client {
         return hash.toString().getBytes();
     }
 
+    /**
+     * 解析重复的证书
+     *
+     * @param c
+     * @return
+     * @throws Exception
+     */
     public byte[] parsePartCertification(X509Certificate c) throws Exception {
         HashMap<String, Object> hash = new HashMap<String, Object>();
         hash.put("version", c.getVersion());
@@ -145,6 +146,53 @@ public class Client {
         hash.put("public key algorithm", c.getPublicKey());
         hash.put("algorithm id", c.getSigAlgOID());
         hash.put("subject", c.getSubjectDN());
+        return hash.toString().getBytes();
+    }
+
+    /**
+     * 解析证书
+     *
+     * @param certificates
+     * @return
+     * @throws Exception
+     */
+    public byte[] parssCertifications(X509Certificate[] certificates) throws Exception {
+        HashMap<String, Object> hash = new HashMap<String, Object>();
+        for (int i = 0; i < certificates.length; i++) {
+            X509Certificate c = certificates[i];
+            if (i == 0) {
+                String strProtocol = null;
+                switch (this.protocol_type) {
+                    case HTTPS:
+                        strProtocol = "HTTPS";
+                        break;
+                    case IMAP:
+                        strProtocol = "IMAP";
+                        break;
+                    case LDAP:
+                        strProtocol = "LDAP";
+                        break;
+                    case POP3:
+                        strProtocol = "POP3";
+                        break;
+                    case SMTP:
+                        strProtocol = "SMTP";
+                        break;
+                }
+                hash.put("protocol", strProtocol);
+                hash.put("devicename", "");
+            }
+
+            hash.put("version", c.getVersion());
+            hash.put("serial number", c.getSerialNumber().toString());
+            hash.put("signature algorithm", c.getSigAlgName());
+            hash.put("issuer", c.getIssuerDN());
+            hash.put("validity", c.getNotBefore() + "," + c.getNotAfter());
+            hash.put("public key algorithm", c.getPublicKey());
+            hash.put("algorithm id", c.getSigAlgOID());
+            hash.put("subject", c.getSubjectDN());
+        }
+
         return hash.toString().getBytes();
     }
 

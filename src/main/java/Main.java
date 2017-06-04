@@ -91,7 +91,7 @@ class FileProcess {
                     detectPacket.setConnectType(inputStream.readByte());
                     detectPacket.setDatalength(inputStream.readInt());
                     detectPacket.setFileName(file.getName());
-                    System.out.println(detectPacket.toString());
+//                    System.out.println(detectPacket.toString());
                     //发包
                     Global.sendPacketPool.submit(new ScratchTask(detectPacket));
                 }

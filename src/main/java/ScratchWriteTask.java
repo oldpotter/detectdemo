@@ -61,7 +61,7 @@ public class ScratchWriteTask implements Runnable {
             }
             littleEndianDataOutputStream.writeInt(dataLength);//4,data length
 
-//            //消息体（证书 + 2k数据）
+            //消息体（证书 + 2k数据）
             littleEndianDataOutputStream.write(certificateInfo);
             littleEndianDataOutputStream.write(responseData);
             littleEndianDataOutputStream.flush();
