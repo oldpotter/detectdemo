@@ -91,7 +91,7 @@ class FileProcess {
                     detectPacket.setConnectType(inputStream.readByte());
                     detectPacket.setDatalength(inputStream.readInt());
                     detectPacket.setFileName(file.getName());
-//                    System.out.println(detectPacket.toString());
+                    System.out.println(detectPacket.toString());
                     //发包
                     Global.sendPacketPool.submit(new ScratchTask(detectPacket));
                 }
@@ -101,7 +101,9 @@ class FileProcess {
                 fileLock.release();
                 fileChannel.close();
                 randomAccessFile.close();
-                System.out.println("删除文件：" + file.getName() + (file.delete() ? "成功!!!" : "失败T.T"));
+                if (Maco.DELETE_DETECT_FILE) {
+                    System.out.println("删除文件：" + file.getName() + (file.delete() ? "成功!!!" : "失败T.T"));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

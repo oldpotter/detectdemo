@@ -47,7 +47,7 @@ public class ScratchWriteTask implements Runnable {
             littleEndianDataOutputStream.writeInt((int) (System.currentTimeMillis() / 1000));
             littleEndianDataOutputStream.writeInt(detectPacket.getSendCode());
             littleEndianDataOutputStream.writeInt(detectPacket.getReverse());
-            littleEndianDataOutputStream.writeInt(detectPacket.getJsonSize());
+            littleEndianDataOutputStream.writeInt((short)detectPacket.getJsonSize());
             littleEndianDataOutputStream.writeInt(detectPacket.getIp());
             littleEndianDataOutputStream.writeShort(detectPacket.getPort());
             littleEndianDataOutputStream.writeByte(detectPacket.getTtl());

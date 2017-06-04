@@ -12,16 +12,17 @@ public class Config {
     *      /home/CloudUser/DetectIP/
     *     "E:\sourceDir"
     *     /usr/test
+    *     /Users/oldpotter/Desktop/DetectIP
     * */
-    public static String sourceFilePath = "/home/CloudUser/DetectIP/";
+    public static String sourceFilePath = "/Users/oldpotter/Desktop/DetectIP";
 
     //输出文件目录
     /*
     * sourceFilePath + File.separator + "response"
     * "/home/CloudUser/PacketInfo"
-    *
+    *   /Users/oldpotter/Desktop/PacketInfo
     * */
-    public static String outputFilePath = "/home/CloudUser/PacketInfo";
+    public static String outputFilePath = "/Users/oldpotter/Desktop/PacketInfo";
 
     //发包线程数
     public static int threadCount = 1000;
