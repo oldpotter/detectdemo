@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class Main {
     public static void main(String[] args) {
-        if (Maco.DELETE_RESPONSE_FILE) {
+        if (Config.DEBUG) {//调试时，删除输出目录文件
             File sourceFile = new File(Config.outputFilePath);
             File[] sourceFiles = sourceFile.listFiles();
             for (File f :
@@ -39,7 +39,9 @@ class FileTask extends TimerTask {
         Pattern pattern = Pattern.compile("^.*.dat");
         FilenameFilter filter = new PatternFilenameFilter(pattern);
         File[] files = sourceDir.listFiles(filter);
-        System.out.println("发现了" + files.length + "个探测文件");
+        if (Config.DEBUG) {
+            System.out.println("发现了" + files.length + "个探测文件");
+        }
         FileProcess.process(files);
     }
 }
@@ -84,7 +86,6 @@ class FileProcess {
                     detectPacket.setTime(inputStream.readInt());
                     detectPacket.setSendCode(inputStream.readInt());
                     detectPacket.setReverse(inputStream.readInt());
-//                    detectPacket.setJsonSize(inputStream.readInt());
                     detectPacket.setIp(inputStream.readInt());
                     detectPacket.setPort(inputStream.readShort());
                     detectPacket.setTtl(inputStream.readByte());
@@ -101,7 +102,7 @@ class FileProcess {
                 fileLock.release();
                 fileChannel.close();
                 randomAccessFile.close();
-                if (Maco.DELETE_DETECT_FILE) {
+                if (!Config.DEBUG) {
                     System.out.println("删除文件：" + file.getName() + (file.delete() ? "成功!!!" : "失败T.T"));
                 }
             } catch (IOException e) {
