@@ -2,48 +2,19 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 
 /**
- * Created by Administrator on 2017/5/18 0018.
+ * Created by Administrator on 2017/6/5 0005.
  */
-public class Client {
-
-    public enum PROTOCOL_TYPE {
-        HTTPS,
-        SMTP,
-        LDAP,
-        IMAP,
-        POP3,
-        HTTP,
+public class SSLClient extends BaseClient {
+    public SSLClient(DetectPacket detectPacket, PROTOCOL_TYPE protocol_type) {
+        super(detectPacket, protocol_type);
     }
 
-    byte[] HTTPdata = {0x47, 0x45, 0x54, 0x20, 0x2f, 0x20, 0x48, 0x54, 0x54, 0x50, 0x2f, 0x31, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a}; //GET / HTTP/1.0
-    byte[] SMTPdata = {0x45, 0x48, 0x4c, 0x4f, 0x0d, 0x0a};
-    byte[] POP3data = {0x43, 0x41, 0x50, 0x41, 0x0d, (byte) 0x0a};
-    byte[] IMAPdata = {0x41, 0x30, 0x30, 0x31, 0x20, 0x43, 0x41, 0x50, 0x41, 0x42, 0x49, 0x4c, 0x49, 0x54, 0x59, 0x0d, 0x0a};
-    byte[] LDAPdata = {0x30, 0x0c, 0x02, 0x01, 0x01, 0x60, 0x07, 0x02, 0x01, 0x02, 0x04, 0x00, (byte) 0x80, 0x00};
-
-    public DetectPacket detectPacket;
-
-    /**
-     * 证书信息
-     */
-    private byte[] bytesCertificates = new byte[10000];
-
-    private PROTOCOL_TYPE protocol_type;
-
-    public Client(DetectPacket detectPacket, PROTOCOL_TYPE protocol_type) {
-        this.detectPacket = detectPacket;
-        this.protocol_type = protocol_type;
-    }
-
-    public void connect() throws Exception {
+    @Override
+    public void connect() throws Exception{
         SSLSocket sslSocket = getSSLSocket();
         X509Certificate[] certificates = (X509Certificate[]) sslSocket.getSession().getPeerCertificates();
         bytesCertificates = parssCertifications(certificates);
@@ -71,6 +42,12 @@ public class Client {
         Global.writeFilePool.submit(new ScratchWriteTask(readResponse(sslSocket.getInputStream()), detectPacket, bytesCertificates));
     }
 
+
+    /**
+     * 获取SSLSocket
+     * @return
+     * @throws Exception
+     */
     public SSLSocket getSSLSocket() throws Exception {
         // Create a trust manager that does not validate certificate chains
         TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
@@ -136,33 +113,5 @@ public class Client {
         }
 
         return hash.toString().getBytes();
-    }
-
-    private void sendRequestBytes(OutputStream out, byte[] bytes) throws Exception {
-        out.write(bytes);
-        out.flush();
-    }
-
-    private byte[] readResponse(InputStream in) throws IOException {
-        return InputStreamTOByte(in);
-    }
-
-    /**
-     * 将InputStream转换成byte数组
-     *
-     * @param in InputStream
-     * @return byte[]
-     * @throws IOException
-     */
-    public static byte[] InputStreamTOByte(InputStream in) throws IOException {
-
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        byte[] data = new byte[1024];
-        int count = -1;
-        while ((count = in.read(data, 0, 1024)) != -1)
-            outStream.write(data, 0, count);
-
-        data = null;
-        return outStream.toByteArray();
     }
 }

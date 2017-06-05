@@ -24,24 +24,24 @@ class ScratchTask implements Runnable {
 
     @Override
     public void run() {
-        Client.PROTOCOL_TYPE protocol_type = null;
+        BaseClient.PROTOCOL_TYPE protocol_type = null;
         int sendCode = detectPacket.getSendCode();
         if (detectPacket.getConnectType() == TCP) {
             switch (sendCode) {
                 case HTTPS:
-                    protocol_type = Client.PROTOCOL_TYPE.HTTPS;
+                    protocol_type = BaseClient.PROTOCOL_TYPE.HTTPS;
                     break;
                 case SMTP:
-                    protocol_type = Client.PROTOCOL_TYPE.SMTP;
+                    protocol_type = BaseClient.PROTOCOL_TYPE.SMTP;
                     break;
                 case LDAP:
-                    protocol_type = Client.PROTOCOL_TYPE.LDAP;
+                    protocol_type = BaseClient.PROTOCOL_TYPE.LDAP;
                     break;
                 case IMAP:
-                    protocol_type = Client.PROTOCOL_TYPE.IMAP;
+                    protocol_type = BaseClient.PROTOCOL_TYPE.IMAP;
                     break;
                 case POP3:
-                    protocol_type = Client.PROTOCOL_TYPE.POP3;
+                    protocol_type = BaseClient.PROTOCOL_TYPE.POP3;
                     break;
                 default:
                     System.out.println("Unknow send code" + sendCode);
@@ -51,7 +51,7 @@ class ScratchTask implements Runnable {
         //连接
         try {
             if (protocol_type != null) {
-                Client client = new Client(detectPacket, protocol_type);
+                BaseClient client = new SSLClient(detectPacket, protocol_type);
                 client.connect();
             }
         } catch (Exception e) {
