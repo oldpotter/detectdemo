@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
@@ -15,17 +16,23 @@ import java.util.regex.Pattern;
  * Created by Administrator on 2017/5/18 0018.
  */
 public class Main {
+    public static Properties properties = new Properties();
+
     public static void main(String[] args) {
-        if (Config.DEBUG) {//调试时，删除输出目录文件
-            File sourceFile = new File(Config.outputFilePath);
-            File[] sourceFiles = sourceFile.listFiles();
-            for (File f :
-                    sourceFiles) {
-                f.delete();
-            }
+        String configPath = args[0];
+        try {
+            properties.load(new FileInputStream(configPath));
+            Config.sourceFilePath = properties.getProperty("DETECT_IP_DIR");
+            Config.outputFilePath = properties.getProperty("PACKET_INFO_DIR");
+            Config.debug = Boolean.valueOf(properties.getProperty("DEBUG"));
+            Config.detectInterval = Integer.valueOf(properties.getProperty("DETECT_INTERVAL"));
+            Config.detectThreadNum = Integer.valueOf(properties.getProperty("DETECT_THREAD_NUM"));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
         Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new FileTask(), 0, Config.lDetectInterval);
+        timer.scheduleAtFixedRate(new FileTask(), 0, Config.detectInterval);
     }
 }
 
@@ -39,9 +46,6 @@ class FileTask extends TimerTask {
         Pattern pattern = Pattern.compile("^.*.dat");
         FilenameFilter filter = new PatternFilenameFilter(pattern);
         File[] files = sourceDir.listFiles(filter);
-        if (Config.DEBUG) {
-            System.out.println("发现了" + files.length + "个探测文件");
-        }
         FileProcess.process(files);
     }
 }
@@ -102,9 +106,7 @@ class FileProcess {
                 fileLock.release();
                 fileChannel.close();
                 randomAccessFile.close();
-                if (!Config.DEBUG) {
-                    System.out.println("删除文件：" + file.getName() + (file.delete() ? "成功!!!" : "失败T.T"));
-                }
+                file.delete();
             } catch (IOException e) {
                 e.printStackTrace();
             }

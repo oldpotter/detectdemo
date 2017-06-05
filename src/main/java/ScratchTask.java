@@ -10,6 +10,7 @@ class ScratchTask implements Runnable {
     private static final int TCP = 0x06;
     private static final int UDP = 0x11;
     private static final int HTTPS = 0x0201BB;
+    private static final int HTTP = 0x20050;
     private static final int SMTP = 0x0201D1;
     private static final int LDAP = 0x02027C;
     private static final int IMAP = 0x0203E1;
