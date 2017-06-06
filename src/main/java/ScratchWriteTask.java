@@ -30,13 +30,13 @@ public class ScratchWriteTask implements Runnable {
         this.certificateInfo = certificateInfo;
     }
 
+    public ScratchWriteTask(byte[] responseData, DetectPacket detectPacket) {
+        this.responseData = responseData;
+        this.detectPacket = detectPacket;
+    }
+
     @Override
     public void run() {
-        //不保存空文件
-        if (certificateInfo == null || responseData == null) {
-            System.out.println("空文件不保存");
-            return;
-        }
         try {
             StringBuffer stringBuffer = new StringBuffer(detectPacket.getFileName()).insert(detectPacket.getFileName().length() - 4, "_NO");
             String newFileName = stringBuffer.toString();
@@ -62,7 +62,9 @@ public class ScratchWriteTask implements Runnable {
             littleEndianDataOutputStream.writeInt(dataLength);//4,data length
 
             //消息体（证书 + 2k数据）
-            littleEndianDataOutputStream.write(certificateInfo);
+            if (certificateInfo != null) {
+                littleEndianDataOutputStream.write(certificateInfo);
+            }
             littleEndianDataOutputStream.write(responseData);
             littleEndianDataOutputStream.flush();
             littleEndianDataOutputStream.close();

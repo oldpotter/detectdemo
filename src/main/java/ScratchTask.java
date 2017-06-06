@@ -28,6 +28,9 @@ class ScratchTask implements Runnable {
         int sendCode = detectPacket.getSendCode();
         if (detectPacket.getConnectType() == TCP) {
             switch (sendCode) {
+                case HTTP:
+                    protocol_type = BaseClient.PROTOCOL_TYPE.HTTP;
+                    break;
                 case HTTPS:
                     protocol_type = BaseClient.PROTOCOL_TYPE.HTTPS;
                     break;
@@ -49,11 +52,15 @@ class ScratchTask implements Runnable {
         }
 
         //连接
+        // TODO: 2017/6/5 0005 完成这里 
         try {
-            if (protocol_type != null) {
-                BaseClient client = new SSLClient(detectPacket, protocol_type);
-                client.connect();
+            BaseClient client;
+            if (protocol_type == BaseClient.PROTOCOL_TYPE.HTTP) {
+                client = new Client(detectPacket, protocol_type);
+            } else {
+                client = new SSLClient(detectPacket, protocol_type);
             }
+            client.connect();
         } catch (Exception e) {
             e.printStackTrace();
         }
